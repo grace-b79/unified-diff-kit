@@ -1,0 +1,24 @@
+{
+  "name": "unified-diff-kit",
+  "version": "0.1.0",
+  "description": "Validating parser and pretty printer for unified diff / patch text.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/test"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "license": "MIT",
+  "author": "grace-b79",
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "@types/node": "^20.14.10"
+  }
+}
