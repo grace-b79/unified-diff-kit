@@ -70,14 +70,31 @@ try {
 }
 ```
 
+## git extended headers
+
+`parseDiff` also understands the extra header lines `git diff` puts above
+the `--- `/`+++ ` pair: `old mode`/`new mode`, `new file mode`, `deleted
+file mode`, `similarity index`/`rename from`/`rename to`, `copy from`/`copy
+to`, and the `index <old>..<new> <mode>` line. They show up as an optional
+`gitHeader` on `FileDiff`. A pure rename or mode change with no content
+diff has no hunks at all, just the header:
+
+```ts
+const diff = parseDiff(
+  "diff --git a/old.txt b/new.txt\nsimilarity index 100%\nrename from old.txt\nrename to new.txt\n"
+);
+diff.files[0].gitHeader?.renameFrom; // "old.txt"
+diff.files[0].hunks; // []
+```
+
 ## what it does not do (yet)
 
-- `diff --git` extended headers (rename/copy/mode-change lines)
 - combined diffs (`diff -c`, three-way merge output)
 - applying a parsed diff back onto source text
+- preserving raw path metadata (timestamps, tabs) instead of trimming it
 
-See the data model in `src/diff.ts` (`ParsedDiff`, `FileDiff`, `Hunk`,
-`DiffLine`) if you want to build on top of it before those land.
+See the data model in `src/diff.ts` (`ParsedDiff`, `FileDiff`, `GitFileHeader`,
+`Hunk`, `DiffLine`) if you want to build on top of it before those land.
 
 ## testing
 
@@ -89,8 +106,9 @@ Runs `tsc` then Node's built-in test runner (`node --test`) against the
 compiled output in `dist/test`. The suite in `test/diff.test.ts` is
 table-driven: one table of diffs that must round-trip exactly (empty diffs,
 omitted hunk counts, multiple hunks, multiple files, "no newline at end of
-file", new-file creation, section headings), and one table of malformed
-diffs that must be rejected with a specific error.
+file", new-file creation, section headings, git renames/copies/mode changes
+with and without a content diff), and one table of malformed diffs that
+must be rejected with a specific error.
 
 ## license
 

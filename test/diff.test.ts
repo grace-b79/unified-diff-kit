@@ -103,6 +103,104 @@ const roundTripCases: RoundTripCase[] = [
       "",
     ].join("\n"),
   },
+  {
+    name: "git diff with an index line and a content change",
+    input: [
+      "diff --git a/greeting.txt b/greeting.txt",
+      "index 1234567..89abcde 100644",
+      "--- a/greeting.txt",
+      "+++ b/greeting.txt",
+      "@@ -1,3 +1,3 @@",
+      " hello",
+      "-old world",
+      "+new world",
+      " goodbye",
+      "",
+    ].join("\n"),
+  },
+  {
+    name: "pure rename, no content change",
+    input: [
+      "diff --git a/old.txt b/new.txt",
+      "similarity index 100%",
+      "rename from old.txt",
+      "rename to new.txt",
+      "",
+    ].join("\n"),
+  },
+  {
+    name: "rename with a content change",
+    input: [
+      "diff --git a/old.txt b/new.txt",
+      "similarity index 88%",
+      "rename from old.txt",
+      "rename to new.txt",
+      "index 1234567..89abcde 100644",
+      "--- a/old.txt",
+      "+++ b/new.txt",
+      "@@ -1 +1 @@",
+      "-old text",
+      "+new text",
+      "",
+    ].join("\n"),
+  },
+  {
+    name: "pure copy, no content change",
+    input: [
+      "diff --git a/file.txt b/copy.txt",
+      "similarity index 100%",
+      "copy from file.txt",
+      "copy to copy.txt",
+      "",
+    ].join("\n"),
+  },
+  {
+    name: "mode change only, no content change",
+    input: ["diff --git a/script.sh b/script.sh", "old mode 100644", "new mode 100755", ""].join("\n"),
+  },
+  {
+    name: "new file created through a git diff",
+    input: [
+      "diff --git a/created.txt b/created.txt",
+      "new file mode 100644",
+      "index 0000000..e69de29",
+      "--- /dev/null",
+      "+++ b/created.txt",
+      "@@ -0,0 +1,1 @@",
+      "+content",
+      "",
+    ].join("\n"),
+  },
+  {
+    name: "file deleted through a git diff",
+    input: [
+      "diff --git a/gone.txt b/gone.txt",
+      "deleted file mode 100644",
+      "index e69de29..0000000",
+      "--- a/gone.txt",
+      "+++ /dev/null",
+      "@@ -1,1 +0,0 @@",
+      "-content",
+      "",
+    ].join("\n"),
+  },
+  {
+    name: "two git-diff files in one patch",
+    input: [
+      "diff --git a/one.txt b/one.txt",
+      "index 1111111..2222222 100644",
+      "--- a/one.txt",
+      "+++ b/one.txt",
+      "@@ -1 +1 @@",
+      "-a",
+      "+b",
+      "diff --git a/two.txt b/renamed.txt",
+      "similarity index 100%",
+      "rename from two.txt",
+      "rename to renamed.txt",
+      "",
+    ].join("\n"),
+  },
 ];
 
 for (const { name, input } of roundTripCases) {
@@ -152,6 +250,11 @@ const errorCases: ErrorCase[] = [
     name: "no-newline marker with nothing before it",
     input: ["--- a/file.txt", "+++ b/file.txt", "@@ -0,0 +1,1 @@", "\\ No newline at end of file", ""].join("\n"),
     messageContains: "no preceding line",
+  },
+  {
+    name: "diff --git line missing the b/ path",
+    input: ["diff --git a/file.txt", "--- a/file.txt", "+++ b/file.txt", "@@ -1 +1 @@", "-a", "+b", ""].join("\n"),
+    messageContains: "malformed",
   },
 ];
 
